@@ -34,7 +34,7 @@ The snapshot tool uses SQLite's consistent backup API and AES-256-GCM. It create
 
 For daily snapshots, set both `BACKUP_DIRECTORY` and `BACKUP_ENCRYPTION_KEY` in the server configuration and restart. After 02:00 WIB, the worker writes one successful encrypted snapshot per date; a failed attempt retries on a later minute. The `meta` records `backup:last_day`, `backup:last_success`, and `backup:last_failure` describe worker outcomes. Failures also log to stderr.
 
-Mount an off-box target into the server or container and monitor it externally. Compose does not mount backup storage by default. Configure retention and failure alerts at the storage/monitoring layer; this app does not delete old backups or notify an external operator. A local encrypted snapshot alone does not protect against host loss.
+Mount an off-box target into the server or container and monitor it externally. Compose mounts `BACKUP_HOST_PATH` at `/backups`; its `./backups` fallback is only suitable for local testing because it remains on the application host. Configure retention and failure alerts at the storage/monitoring layer; this app does not delete old backups or notify an external operator. A local encrypted snapshot alone does not protect against host loss.
 
 ## Recover an account
 
