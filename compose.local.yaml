@@ -1,0 +1,9 @@
+services:
+  api:
+    environment:
+      NODE_ENV: development
+      PUBLIC_ORIGIN: http://localhost
+
+  web:
+    environment:
+      SITE_ADDRESS: http://localhost

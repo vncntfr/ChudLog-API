@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.local
+.env
+.env.*
+!.env.example
+!deploy/env.production.example
+data/
+/tmp/
+backups/
+coverage/
+.DS_Store
+*.log
+vite.config.ts.timestamp-*
+.split/

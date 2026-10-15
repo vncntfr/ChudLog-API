@@ -1,0 +1,17 @@
+{
+  "name": "chudlog-api",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ChudLog API, jobs, migrations, and operator tools",
+  "workspaces": ["shared", "api"],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "npm --workspace api run dev",
+    "start": "npm --workspace api start",
+    "typecheck": "npm --workspaces run typecheck",
+    "test": "npm --workspaces run test",
+    "build": "npm --workspaces run build",
+    "migrate": "npm --workspace api run migrate",
+    "env:production": "node api/scripts/create-production-env.mjs"
+  }
+}

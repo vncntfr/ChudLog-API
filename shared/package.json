@@ -1,0 +1,24 @@
+{
+  "name": "@chudlog/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ChudLog pure rule functions — no I/O, imported by api and web",
+  "main": "./src/lib/index.ts",
+  "types": "./src/lib/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/lib/index.ts",
+      "default": "./src/lib/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "echo 'no build step (TS source consumed by api/web)'"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^5.0.5"
+  }
+}
