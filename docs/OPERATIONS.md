@@ -63,4 +63,12 @@ The worker bundles owed trackers into one job per user/hour from 08:00 through 2
 
 ## Verify deployment
 
-Build and run the Docker/Caddy skeleton on the target host. Set the real domain, matching `PUBLIC_ORIGIN`, a production session secret, persistent database storage, and HTTPS port bindings. The checked-in Compose ports bind to localhost for local testing. Verify health, secure sessions, persistence after restart, migrations, backup recovery, and device push before admitting the pilot group.
+Build and run the Docker/Caddy stack on the target host. Set the real domain, matching `PUBLIC_ORIGIN`, production secrets, persistent database storage, and an off-host backup mount. Production Compose publishes ports 80 and 443; `compose.local.yaml` switches Caddy to browser-trusted HTTP only for local testing. Verify health, secure sessions, persistence after restart, migrations, backup recovery, and device push before admitting the pilot group.
+
+## Monitor uptime and backups
+
+Use two checks because they answer different questions. `GET /api/health` verifies that the web process can read SQLite; Docker uses this endpoint and may restart the API if it fails. `GET /api/health/backup` verifies the recovery path and returns HTTP 503 while backups are unconfigured, awaiting their first successful run, newer-failed-than-successful, or more than 36 hours old. A backup failure should alert the operator without restarting an otherwise healthy application.
+
+Configure an external monitoring service to request the app health endpoint every one to five minutes and the backup endpoint at least hourly. Deliver failures to a channel the operator will actually notice. Test both alerts deliberately: stop the stack for the uptime alert, then make the backup mount temporarily unwritable for the backup alert. The monitor must run outside the application server; an on-server check disappears during the same outage it is supposed to report.
+
+Follow [the deployment and pilot checklist](DEPLOYMENT_CHECKLIST.md) for the complete release review.

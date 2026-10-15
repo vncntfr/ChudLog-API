@@ -126,7 +126,7 @@ export function buildApp(ctx: AppCtx): Hono<{ Variables: Variables }> {
   const authCheck = createMiddleware(async (c, next) => {
     const path = new URL(c.req.url).pathname.replace(/\/+$/, '') || '/';
     const isPublic =
-      path === '/api/health' || path === '/api/meta/vapid' || path.startsWith('/api/auth/');
+      path === '/api/health' || path === '/api/health/backup' || path === '/api/meta/vapid' || path.startsWith('/api/auth/');
     if (!isPublic) {
       const token = readSessionCookie(c.req.header('cookie'));
       if (!token) return c.json({ error: 'unauthenticated' }, 401);
@@ -145,7 +145,26 @@ export function buildApp(ctx: AppCtx): Hono<{ Variables: Variables }> {
 
   // --- routes ----------------------------------------------------------------
   // Public meta (the VAPID public key is public by RFC 8292 design).
-  app.get('/api/health', (c) => c.json({ ok: true, ts: Date.now(),backup:{configured:Boolean(env.backupDirectory&&env.backupKey),last_success:(db.db.prepare("SELECT value FROM meta WHERE key='backup:last_success'").get() as {value:string}|undefined)?.value??null,last_failure:(db.db.prepare("SELECT value FROM meta WHERE key='backup:last_failure'").get() as {value:string}|undefined)?.value??null}}));
+  const backupHealth = () => {
+    const configured = Boolean(env.backupDirectory && env.backupKey);
+    const successRaw = (db.db.prepare("SELECT value FROM meta WHERE key='backup:last_success'").get() as {value:string}|undefined)?.value;
+    const failureRaw = (db.db.prepare("SELECT value FROM meta WHERE key='backup:last_failure'").get() as {value:string}|undefined)?.value;
+    const lastSuccess = successRaw ? Number(successRaw) : null;
+    const lastFailure = failureRaw ? Number(failureRaw) : null;
+    const ageHours = lastSuccess === null ? null : Math.round(((Date.now() - lastSuccess) / 3_600_000) * 10) / 10;
+    const status = !configured ? 'unconfigured'
+      : lastFailure !== null && (lastSuccess === null || lastFailure > lastSuccess) ? 'failed'
+      : lastSuccess === null ? 'pending'
+      : ageHours !== null && ageHours > 36 ? 'stale'
+      : 'ok';
+    return { configured, status, last_success: lastSuccess, last_failure: lastFailure, age_hours: ageHours };
+  };
+  app.get('/api/health', (c) => c.json({ ok: true, ts: Date.now(), backup: backupHealth() }));
+  app.get('/api/health/backup', (c) => {
+    const backup = backupHealth();
+    const ok = backup.status === 'ok';
+    return c.json({ ok, backup }, ok ? 200 : 503);
+  });
   app.get('/api/meta/vapid', (c) => c.json({ vapidPublicKey: env.vapidPublicKey }));
 
   app.route('/api', buildAuthRoutes(ctx));

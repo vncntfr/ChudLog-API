@@ -66,6 +66,19 @@ test('reject invalid JSON, hostile origins, extra profile fields, and invalid in
   expect((await write('/auth/register',{email:'bad@example.com',password:'password123',display_name:'Bad',group_join:{code:'BADCODE1'}})).status).toBe(404);
   expect(db.db.prepare('SELECT COUNT(*) AS n FROM users').get()).toEqual({n:1});
 });
+test('backup health reports unconfigured, healthy, stale, and failed states without affecting app liveness', async () => {
+  expect((await app.request('/api/health')).status).toBe(200);
+  expect(await (await app.request('/api/health/backup')).json()).toMatchObject({ok:false,backup:{status:'unconfigured'}});
+  ctx.env.backupDirectory=dir;ctx.env.backupKey=Buffer.alloc(32).toString('base64');
+  expect((await app.request('/api/health/backup')).status).toBe(503);
+  const now=Date.now();
+  db.db.prepare("INSERT INTO meta (key,value) VALUES ('backup:last_success',?)").run(String(now));
+  expect(await (await app.request('/api/health/backup')).json()).toMatchObject({ok:true,backup:{status:'ok'}});
+  db.db.prepare("UPDATE meta SET value=? WHERE key='backup:last_success'").run(String(now-37*3_600_000));
+  expect(await (await app.request('/api/health/backup')).json()).toMatchObject({ok:false,backup:{status:'stale'}});
+  db.db.prepare("INSERT INTO meta (key,value) VALUES ('backup:last_failure',?)").run(String(now));
+  expect(await (await app.request('/api/health/backup')).json()).toMatchObject({ok:false,backup:{status:'failed'}});
+});
 function seedDay(id: string, date: string, kind = 'workout', late = false) {
   const ts = calendar.dayDeadline(date, 'Asia/Jakarta') - (late ? 0 : 3600000);
   const key = `${id}-${date}`;
