@@ -6,7 +6,7 @@ Verified on 2026-10-16 before a production server was available. This report rec
 
 **Application gate: pass. Public launch gate: blocked by infrastructure and owner checks.**
 
-The application is ready to install on a server for final acceptance. Do not invite the pilot group until every item under **Required before launch** is complete.
+The application is ready to install on a server for final acceptance. Follow the current [launch checklists](LAUNCH_CHECKLISTS.md), and do not invite the pilot group until every launch-gate item is complete.
 
 ## Verified
 

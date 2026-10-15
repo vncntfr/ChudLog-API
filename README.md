@@ -38,4 +38,4 @@ docker compose --env-file .env.production up -d --build
 
 The stack exposes ports 80 and 443, stores SQLite in a named volume, serves the PWA with Caddy, and writes encrypted daily snapshots to `BACKUP_HOST_PATH`. On the server, set that path to an off-host mounted filesystem. See `docs/OPERATIONS.md` for restore and push checks.
 
-Review every item in [`docs/DEPLOYMENT_CHECKLIST.md`](docs/DEPLOYMENT_CHECKLIST.md) before inviting the pilot group.
+Use the status-aware [`docs/LAUNCH_CHECKLISTS.md`](docs/LAUNCH_CHECKLISTS.md) for the current deployment sequence and ownership. Review every item in [`docs/DEPLOYMENT_CHECKLIST.md`](docs/DEPLOYMENT_CHECKLIST.md) before inviting the pilot group.
