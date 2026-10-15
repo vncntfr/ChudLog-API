@@ -11,7 +11,7 @@ The application is ready to install on a server for final acceptance. Do not inv
 ## Verified
 
 - Both GitHub repositories are private, use `main`, and only `vncntfr` has collaborator access.
-- GitHub Actions passed on both current `main` commits before this audit. The workflows now use the current Node 24 based `actions/checkout@v7` and `actions/setup-node@v7`; the new runs must pass after this report is merged.
+- GitHub Actions passed on both audited `main` commits using the current Node 24 based `actions/checkout@v7` and `actions/setup-node@v7`: [frontend run 38773704218](https://github.com/vncntfr/ChudLog/actions/runs/38773704218) and [backend run 38773721245](https://github.com/vncntfr/ChudLog-API/actions/runs/38773721245).
 - Frontend and backend shared domain sources are identical.
 - Type checking, 74 automated tests, production builds, and both production-only Docker builds pass.
 - `npm audit --omit=dev --audit-level=high` reports zero vulnerabilities in both repositories.
